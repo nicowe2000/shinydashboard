@@ -1,4 +1,4 @@
-# Benötigte Pakete laden
+#load packages
 library(shiny)
 library(shinydashboard)
 library(leaflet)
@@ -6,14 +6,14 @@ library(DT)
 library(readr)
 library(dplyr)
 
-# Daten von der URL einlesen
+#scrape data from Web
 url <- "https://data.bs.ch/api/v2/catalog/datasets/100126/exports/csv"
-population_data <- read_delim(url, delim = ";")  # Korrekte Funktion und Argumente
+population_data <- read_delim(url, delim = ";") 
 
-# Überprüfen der Spaltennamen
+#check column names
 colnames(population_data)
 
-# UI-Definition
+# UI-definition
 ui <- dashboardPage(
   dashboardHeader(title = "Bevölkerungsdashboard"),
   dashboardSidebar(
@@ -38,26 +38,25 @@ ui <- dashboardPage(
   )
 )
 
-# Server-Logik
+# server logic
 server <- function(input, output, session) {
   
-  # Reaktive Daten basierend auf der ausgewählten Gemeinde
+  # reactive data on chosen "gemeinde"
   selected_data <- reactive({
     population_data %>% filter(gemeinde == input$gemeinde)
   })
   
-  # Leaflet-Karte rendern
+  # Leaflet
   output$populationMap <- renderLeaflet({
     leaflet() %>%
       addTiles() %>%
-      setView(lng = 7.5886, lat = 47.5596, zoom = 12)  # Beispielkoordinaten für Basel
-  })
+      setView(lng = 7.5886, lat = 47.5596, zoom = 12)  # coordinates of basel
   
-  # Daten-Tabelle rendern
+  # load table
   output$populationTable <- renderDT({
     datatable(selected_data())
   })
 }
 
-# Anwendung starten
+# start dashboard
 shinyApp(ui = ui, server = server)
